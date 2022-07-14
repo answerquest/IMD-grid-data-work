@@ -5,7 +5,7 @@ CREATE TABLE imd_data(
 	sr SERIAL PRIMARY KEY,
 	year1 INT NULL,
 	month1 INT NULL,
-	data TEXT DEFAULT '{}' NOT NULL,
+	data JSONB DEFAULT '{}' NOT NULL,
 	geometry GEOMETRY(POINT,4326) NOT NULL
 );
 CREATE INDEX imd_data_i1 ON imd_data (year1);
