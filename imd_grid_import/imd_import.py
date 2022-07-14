@@ -94,7 +94,7 @@ else:
 
 # TEMP
 for year in range(allStart, allEnd+1 ):
-    # time.sleep(5)
+    time.sleep(5)
     logmessage(year)
     fileT = f"{year}.GRD"
     fileR = f"{year}.grd"
