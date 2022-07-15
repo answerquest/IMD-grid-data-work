@@ -1,6 +1,9 @@
 # IMD-grid-data-work
-Some work on IMD Pune's gridded data sets: https://imdpune.gov.in/Clim_Pred_LRF_New/Grided_Data_Download.html
-Author: Nikhil VJ, https://nikhilvj.co.in
+Some work on IMD Pune's gridded data sets: https://imdpune.gov.in/Clim_Pred_LRF_New/Grided_Data_Download.html  
+Author: Nikhil VJ, https://nikhilvj.co.in  
+
+Intentions of this project: To make this data more accessible for people, to show much simpler code to extract the data than what I've seen online. And to get my hands dirty on a large trove of Indian open data :)
+
 
 ## Database loading program : imd_grid_import
 - A script to fetch the gridded data downloads from IMD, process it and load into a local dockerized PostGreSQL DB. See the Readme in the imd_grid_import/ folder for more details.
@@ -9,7 +12,7 @@ Author: Nikhil VJ, https://nikhilvj.co.in
 - Even after removing all junk data, there's a v.large number of datapoints per yr - around 1.18 Million. Granularity: per date and location.
 - Loading each of these into DB takes more time, occupies huge space and even fetching them takes v.long
 - Nature of fetching data: Most likely we'll never be fetching just one date's data (like: 2020-01-14) at a time. More likely we'll be fetching for a whole month at a go at least, but for an individual location.
-- So, it makes sense to group the data by : Year + month + Location.
+- So, it makes sense to group the data by : Year + month + Location, and store the grouped data in a JSON column.
 - Sample data in DB for Grid location (28.5,72.5) , Jan 2020:
 ```
 {"2020-01-01": {"rain": 0.0, "tmax": 17.580678939819336, "tmin": 3.262223720550537},
@@ -52,4 +55,11 @@ Note: tmax and tmin were available at lower grid resolution than rainfall data, 
 
 
 ## Sample notebooks
-Jupyter notebooks (python3 programs) showing sample code to work with the data in Database once you have it ready.
+Check out the .ipynb Jupyter notebooks (python3 programs) here showing sample code to work with the data in Database once you have it ready.
+
+## Sample viz
+For location [18.5,74.0 nr Pune, India](https://www.openstreetmap.org/#map=11/18.5/74/0), cumulative monthly rainfall from 1901 to 2021:
+
+![rainV_18.5,74.0.png](rainV_18.5,74.0.png)
+
+See [2022-07-14 rainfal viz 1.ipynb](https://github.com/answerquest/IMD-grid-data-work/blob/main/2022-07-14%20rainfal%20viz%201.ipynb) for the code that made this.
