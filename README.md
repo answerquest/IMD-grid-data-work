@@ -6,7 +6,7 @@ Intentions of this project: To make this data more accessible for people, to sho
 
 
 ## Database loading program : imd_grid_import
-- A script to fetch the gridded data downloads from IMD, process it and load into a local dockerized PostGreSQL DB. See the Readme in the imd_grid_import/ folder for more details.
+- A script (2 actually) to fetch the gridded data downloads from IMD, process it and load into a local dockerized PostGreSQL DB. See the Readme in the imd_grid_import/ folder for more details.
 
 ## Database structure explainer
 - Even after removing all junk data, there's a v.large number of datapoints per yr - around 1.18 Million. Granularity: per date and location.
@@ -53,6 +53,8 @@ Intentions of this project: To make this data more accessible for people, to sho
 
 Note: tmax and tmin were available at lower grid resolution than rainfall data, so in the DB table imd_data there will be locations that only have rainfall data.
 
+### Update: separate temperature tables added
+`imd_temp_data` and `temp_grid` tables contain data and grid locations respectively of just the temperature records. They're much smaller in quantity than the rain records, so use these if you only want temperature data.
 
 ## Sample notebooks
 Check out the .ipynb Jupyter notebooks (python3 programs) here showing sample code to work with the data in Database once you have it ready.
