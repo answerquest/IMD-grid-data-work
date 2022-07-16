@@ -119,7 +119,7 @@ for year in range(allStart, allEnd+1 ):
         tmin2 = tmin1[tmin1['tmin'] < 99].reset_index()
 
         # merge temps
-        df1 = pd.merge(tmax2, tmin2, how='outer', on=['time','lat','lon'], sort=False )
+        df1 = pd.merge(tmax2, tmin2, how='outer', on=['time','lat','lon'], sort=False ).fillna('')
     else:
         df1 = pd.DataFrame()
 
@@ -167,7 +167,7 @@ for year in range(allStart, allEnd+1 ):
     d1Res = c.execute(d1)
     c.close()
     if d1Res.rowcount:
-        logmessage(f"{year}: existing rows deleted")
+        logmessage(f"{year}: {d1Res.rowcount} existing rows deleted")
 
     gdf1 = makegpd(df3)
     gdf1.to_postgis('imd_data', engine, if_exists='append', index=False, chunksize=batchSize)
@@ -177,5 +177,5 @@ for year in range(allStart, allEnd+1 ):
     # merge: how='outer' from https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html
 
 end = time.time()
-logmessage(f"Script completed in {round((end-start)/60,1)} secs")
+logmessage(f"Script completed in {round((end-start)/60,1)} mins")
 
