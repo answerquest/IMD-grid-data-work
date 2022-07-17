@@ -9,6 +9,7 @@ Intentions of this project: To make this data more accessible for people, to sho
 - A script (2 actually) to fetch the gridded data downloads from IMD, process it and load into a local dockerized PostGreSQL DB. See the Readme in the imd_grid_import/ folder for more details.
 
 ## Database structure explainer
+- Update: Separate temperature data tables made; same structure, but with just temperature data which is smaller and will be faster to query. 
 - Even after removing all junk data, there's a v.large number of datapoints per yr - around 1.18 Million. Granularity: per date and location.
 - Loading each of these into DB takes more time, occupies huge space and even fetching them takes v.long
 - Nature of fetching data: Most likely we'll never be fetching just one date's data (like: 2020-01-14) at a time. More likely we'll be fetching for a whole month at a go at least, but for an individual location.
@@ -55,6 +56,11 @@ Note: tmax and tmin were available at lower grid resolution than rainfall data, 
 
 ### Update: separate temperature tables added
 `imd_temp_data` and `temp_grid` tables contain data and grid locations respectively of just the temperature records. They're much smaller in quantity than the rain records, so use these if you only want temperature data.
+
+## Downloaded data checksums
+- See [sha256_checksum_rain.txt](sha256_checksum_rain.txt), [sha256_checksum_tmax.txt](sha256_checksum_tmax.txt), [sha256_checksum_tmin.txt](sha256_checksum_tmin.txt) files in this repo to see the checksums of the downloaded .grd data from IMD site. 
+- This can be used to cross-check data authenticity / detect if there have been changes in the data published in the website after July 2022 when I had downloaded them.
+- It's good practice for the publishing site to publish these checksums next to their data, to give end users a way to ensure there's been no file corruption or middle-player manipulation. Recommending IMD site to do this.
 
 ## Sample notebooks
 Check out the .ipynb Jupyter notebooks (python3 programs) here showing sample code to work with the data in Database once you have it ready.
