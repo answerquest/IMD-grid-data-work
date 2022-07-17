@@ -48,6 +48,8 @@ Intentions of this project: To make this data more accessible for people, to sho
  "2020-01-30": {"rain": 0.0, "tmax": 21.596620559692383, "tmin": 7.587302207946777},
  "2020-01-31": {"rain": 0.0, "tmax": 21.153125762939453, "tmin": 6.719666004180908}}
  ```
+ - With one line, this dict can be turned into a flat pandas dataframe table in python:  
+ `df = pd.DataFrame(data).transpose().reset_index().rename(columns={'index':'date'})`
 - Like this, the number of rows in DB for one year reduces from 1.81M to around 60k : reduction to around 3% or by 30x.
 - This results in a lot faster speed in retrieving the data from DB, doing geospatial queries etc.
 - The entire IMD gridded dataset is in DB in 7,247,891 (~7.2M) rows.
