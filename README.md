@@ -1,9 +1,27 @@
 # IMD-grid-data-work
-Some work on IMD Pune's gridded data sets: https://imdpune.gov.in/Clim_Pred_LRF_New/Grided_Data_Download.html  
+Some work on IMD Pune's gridded data sets  
 Author: Nikhil VJ, https://nikhilvj.co.in  
+
+Source URL: https://imdpune.gov.in/Clim_Pred_LRF_New/Grided_Data_Download.html | Alternate: https://imdpune.gov.in/lrfindex.php -> See under Gridded data in side menu.  
 
 Intentions of this project: To make this data more accessible for people, to show much simpler code to extract the data than what I've seen online. And to get my hands dirty on a large trove of Indian open data :)
 
+## Direct data extract from .GRD files
+Note: All code is in python  
+Install [imdlib](https://pypi.org/project/imdlib/) package  
+Assuming that you've downloaded 2010 data file, saved it as "2010.grd" in "rain" folder next to the program :  
+```
+import imdlib
+rain1 = imdlib.open_data('rain', 2010, 2010, 'yearwise').get_xarray().to_dataframe()
+rain2 = rain1[rain1['rain'] > -100].reset_index()
+rain2.to_csv('rain_2010.csv',index=False)
+```
+
+The functions `.get_xarray()`, `.to_dataframe()` and `.reset_index()` do the job of converting the multi-dimensional dataset into a flat table that can be saved to CSV, excel, etc.
+
+Tip: Do this in Jupyter Notebook, do just till .get_xarray() and then print the variable directly in a cell. It's beautiful.
+
+More extended tutorial in the author's blog: https://saswatanandi.github.io/softwares/imdlib/
 
 ## Database loading program : imd_grid_import
 - A script (2 actually) to fetch the gridded data downloads from IMD, process it and load into a local dockerized PostGreSQL DB. See the Readme in the imd_grid_import/ folder for more details.
