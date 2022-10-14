@@ -6,6 +6,12 @@ Source URL: https://imdpune.gov.in/Clim_Pred_LRF_New/Grided_Data_Download.html |
 
 Intentions of this project: To make this data more accessible for people, to show much simpler code to extract the data than what I've seen online. And to get my hands dirty on a large trove of Indian open data :)
 
+
+## Website
+- See https://server.nikhilvj.co.in/imd_data/ -> Has the code in imd_data_api/ folder deployed.
+- You can select a location and year, and download data as a simple flat CSV (table) file.
+
+
 ## Direct data extract from .GRD files
 Note: All code is in python  
 Install [imdlib](https://pypi.org/project/imdlib/) package  
