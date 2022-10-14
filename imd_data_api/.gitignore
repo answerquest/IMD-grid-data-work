@@ -1,0 +1,4 @@
+logs
+viz
+*.sh
+__pycache__

@@ -1,9 +1,9 @@
 #!/bin/bash
 
 
-export DB_SERVER='DB_SERVER'
+export DB_SERVER='localhost'
 export DB_PORT='5438'
-export DB_DBNAME='DB_DBNAME'
+export DB_DBNAME='imdgrid'
 export DB_USER='username'
 export DB_PW='password'
 
@@ -20,7 +20,7 @@ export RAIN_END='2021'
 python3 imd_import.py
 
 
-# dockerized postgresql : change the user, password, volumes as per your setup
+# dockerized postgresql : change the username, password, persistent volume paths as per your setup
 d="
 docker run --name imdgrid -d -p "5438:5432" \
 -e POSTGRES_USER=username \

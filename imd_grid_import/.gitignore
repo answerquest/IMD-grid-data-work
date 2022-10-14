@@ -1,0 +1,6 @@
+server*.sh
+logs
+rain
+tmax
+tmin
+__pycache__
