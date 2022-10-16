@@ -54,22 +54,14 @@ L.geoJSON(india_outline, {
     interactive: false
 }).addTo(map);
 
-var circleMarkerOptions = {
-    renderer: myRenderer,
-    radius: 5,
-    fillColor: "blue",
-    color: "white",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.7
-};
+
 
 // ############################################
 // RUN ON PAGE LOAD
 
 $(document).ready(function () {
 	authenticate(fillToken);
-    initialData(defaultYr=2010); // def moved to common.js
+    initialData(which='all', defaultYr=2010); // def moved to common.js
 });
 
 

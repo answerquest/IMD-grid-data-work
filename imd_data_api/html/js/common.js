@@ -173,12 +173,9 @@ function verifyOTP(callback=null) {
 }
 
 
-function initialData(defaultYr=null) {
-    let which = 'temp';
-    if(! window.location.href.split('/').pop().includes('game.html'))
-        which = 'all';
-
+function initialData(which='temp', defaultYr=null) {
     $('#initialData_status').html(`Loading grid and years list..`);
+    
     $.ajax({
         url: `${APIpath}/initialData?which=${which}`,
         type: "GET",
@@ -200,11 +197,20 @@ function initialData(defaultYr=null) {
             // map locations
             let gridHolder = Papa.parse(returndata['locations'], {header:true, skipEmptyLines:true}); 
             gridHolder.data.forEach(g => {
-                let popupContent = `${g.lat}, ${g.lon} <button onclick="$('#selectedLocation').html('${g.lat},${g.lon}')">Select</button>`
+                let popupContent = `${g.lat}, ${g.lon} <button onclick="$('#selectedLocation').html('${g.lat},${g.lon}')">Select</button>
+                ${which=='temp'? '' : ( g.temp_sr!='NULL' ? '<br>Both rain and temperature data':'<br>only rain data' ) }`;
                 let tooltipContent = `${g.lat}, ${g.lon}`;
-                let pt = L.circleMarker([g.lat,g.lon], circleMarkerOptions)
+                let pt = L.circleMarker([g.lat,g.lon], {
+                        renderer: myRenderer,
+                        radius: 5,
+                        fillColor: which=='temp'? "blue" : ( g.temp_sr!='NULL' ? 'orange':'blue' ),
+                        color: "grey",
+                        weight: 1,
+                        opacity: 1, 
+                        fillOpacity: 0.4
+                    })
                     .bindPopup(popupContent)
-                    .bindTooltip(tooltipContent);
+                    .bindTooltip(tooltipContent, {direction: 'bottom', offset: [0,10]});
                 pt.addTo(gridLayer);
             });
             if (!map.hasLayer(gridLayer)) map.addLayer(gridLayer);
