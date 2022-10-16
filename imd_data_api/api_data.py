@@ -28,14 +28,23 @@ def initialData(which: Optional[str]="temp", X_Forwarded_For: Optional[str] = He
     logIP(X_Forwarded_For, 'list', limit=1)
     returnD = {}
     
+    # load grid from saved CSV
+    gridFile = os.path.join(root, 'imd_rain_Vs_temp_grid.csv')
+    griddf1 = pd.read_csv(gridFile, dtype=str, keep_default_na=False)
+
     # locations
     if which.lower() == 'temp':
-        s1 = f"""select sr, ST_Y(geometry) as lat, ST_X(geometry) as lon from temp_grid"""
+        # s1 = f"""select sr, ST_Y(geometry) as lat, ST_X(geometry) as lon from temp_grid"""
+        print(griddf1['temp_sr'].head(100).to_list())
+        griddf2 = griddf1[griddf1['temp_sr'] != 'NULL'][['lat','lon']].copy().reset_index(drop=True)
+        print("temp grid:",len(griddf2))
+        returnD['locations'] = griddf2.to_csv(index=False)
     else:
-        s1 = f"""select sr, ST_Y(geometry) as lat, ST_X(geometry) as lon from grid"""
-    df1 = dbconnect.makeQuery(s1, output='df')
+        # s1 = f"""select sr, ST_Y(geometry) as lat, ST_X(geometry) as lon from grid"""
+        print("all grid:",len(griddf1))
+        returnD['locations'] = griddf1.to_csv(index=False)
 
-    returnD['locations'] = df1.to_csv(index=False)
+    
     
     # years
     if which.lower() == 'temp':
