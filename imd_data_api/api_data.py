@@ -35,13 +35,10 @@ def initialData(which: Optional[str]="temp", X_Forwarded_For: Optional[str] = He
     # locations
     if which.lower() == 'temp':
         # s1 = f"""select sr, ST_Y(geometry) as lat, ST_X(geometry) as lon from temp_grid"""
-        print(griddf1['temp_sr'].head(100).to_list())
         griddf2 = griddf1[griddf1['temp_sr'] != 'NULL'][['lat','lon']].copy().reset_index(drop=True)
-        print("temp grid:",len(griddf2))
         returnD['locations'] = griddf2.to_csv(index=False)
     else:
         # s1 = f"""select sr, ST_Y(geometry) as lat, ST_X(geometry) as lon from grid"""
-        print("all grid:",len(griddf1))
         returnD['locations'] = griddf1.to_csv(index=False)
 
     
@@ -118,16 +115,11 @@ async def fetchData(year:int, lat:float, lon:float, which:Optional[str] = "all",
         df1.drop(columns=['tmin','tmax'], inplace=True)
 
     data = df1.to_csv(index=False)
-
     filename1 = f"{lat}_{lon}_{year}_{which}.csv"
 
+    # file download response
     headers1 = {'Content-Disposition': f'attachment; filename="{filename1}"'}
     return Response(data, media_type='text/csv', headers=headers1)
-
-    
-
-
-
 
 
 
@@ -168,9 +160,9 @@ def fetch2yrsTempData(y1:int,y2:int,lat:float,lon:float):
     comdf1 = pd.merge(y1_df, y2_df, on='MD', how='inner')
 
     # previews
-    print(y1_df.head(5))
-    print(y2_df.head(5))
-    print(comdf1.head(5))
+    # print(y1_df.head(5))
+    # print(y2_df.head(5))
+    # print(comdf1.head(5))
 
     return comdf1
 
