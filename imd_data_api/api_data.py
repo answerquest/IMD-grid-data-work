@@ -108,11 +108,16 @@ async def fetchData(year:int, lat:float, lon:float, which:Optional[str] = "all",
     
     # concatenate the dfs into one
     df1 = pd.concat(arr2, sort=False, ignore_index=True)
+
+    # just sanity check
+    if not len(df1):
+        return {'success':False, 'message': "No data for give location / year"}
+
     df1['latitude'] = lat
     df1['longitude'] = lon
     
     if which == 'rain':
-        df1.drop(columns=['tmin','tmax'], inplace=True)
+        df1.drop(columns=['tmin','tmax'], inplace=True, errors='ignore')
 
     data = df1.to_csv(index=False)
     filename1 = f"{lat}_{lon}_{year}_{which}.csv"
