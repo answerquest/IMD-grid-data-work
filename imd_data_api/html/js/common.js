@@ -1,7 +1,7 @@
 // common.js
 
 // GLOBAL CONSTANTS
-var APIpath = '/API'
+var APIpath = 'https://server.nikhilvj.co.in/imd_data/API'
 const STARTLOCATION = [24.37,78.75];
 var STARTZOOM = 5;
 
