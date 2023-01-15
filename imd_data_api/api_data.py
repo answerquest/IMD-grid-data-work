@@ -163,7 +163,7 @@ def fetch2yrsTempData(y1:int,y2:int,lat:float,lon:float):
     y1_df = pd.DataFrame(tableY1)
     y2_df = pd.DataFrame(tableY2)
     comdf1 = pd.merge(y1_df, y2_df, on='MD', how='inner')
-
+    cf.logmessage(f"fetch2yrsTempData: comdf1: {len(comdf1)} rows")
     # previews
     # print(y1_df.head(5))
     # print(y2_df.head(5))

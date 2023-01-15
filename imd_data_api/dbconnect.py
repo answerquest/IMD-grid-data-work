@@ -10,28 +10,25 @@ import commonfuncs as cf
 # Postgresql multi-threaded connection pool.
 # From https://pynative.com/psycopg2-python-postgresql-connection-pooling/#h-create-a-threaded-postgresql-connection-pool-in-python
 
-dbcreds = {
+# 2022-01-15: adopting different db connection way from https://github.com/DavidLacroix/postgis-mvt/blob/master/webapp/app.py
+DB_PARAMETERS = {
     'host': os.environ.get('DB_SERVER',''),
-    'port': os.environ.get('DB_PORT',''),
-    'dbname': os.environ.get('DB_DBNAME',''),
+    'port': int( os.environ.get('DB_PORT','') ),
+    'database': os.environ.get('DB_DBNAME',''),
     'user': os.environ.get('DB_USER',''),
-    'password': os.environ.get('DB_PW','')
+    'password': os.environ.get('DB_PW',''),
+    'cursor_factory': extras.RealDictCursor
 }
+assert len(DB_PARAMETERS['password']) > 2, "Invalid DB connection password" 
 
-assert len(dbcreds['password']) > 2, "Invalid DB connection password" 
-
-threaded_postgreSQL_pool = psycopg2.pool.ThreadedConnectionPool(5, 20, user=dbcreds['user'],
-    password=dbcreds['password'], host=dbcreds['host'], port=dbcreds['port'], database=dbcreds['dbname'])
-
+threaded_postgreSQL_pool = psycopg2.pool.ThreadedConnectionPool(5, 20, **DB_PARAMETERS)
 assert threaded_postgreSQL_pool, "Could not create DB connection"
-
 cf.logmessage("DB Connected")
 
-def makeQuery(s1, output='df', lowerCaseColumns=False, keepCols=False, fillna=True, engine=None, noprint=False):
+def makeQuery(s1, output='df', lowerCaseColumns=False, fillna=True, engine=None, noprint=False):
     '''
     output choices:
     oneValue : ex: select count(*) from table1 (output will be only one value)
-    oneRow : ex: select * from table1 where id='A' (output will be onle one row)
     df: ex: select * from users (output will be a table)
     list: json array, like df.to_dict(orient='records')
     column: first column in output as a list. ex: select username from users
@@ -56,30 +53,42 @@ def makeQuery(s1, output='df', lowerCaseColumns=False, keepCols=False, fillna=Tr
 
     result = None # default return value
 
-    if output in ('oneValue','oneRow'):
-        ps_cursor = ps_connection.cursor()
-        ps_cursor.execute(s1)
+    ps_cursor = ps_connection.cursor()
+    ps_cursor.execute(s1)
+
+    if output in ('oneValue','oneJson'):
         row = ps_cursor.fetchone()
+        ps_cursor.close()
         if not row: 
             result = None
         else:
             if output == 'oneValue':
-                result = row[0]
+                # result = row[0]
+                if len(list(row.values())):
+                    result = list(row.values())[0]
+                else:
+                    result = None
             else:
-                result = row
-        ps_cursor.close()
+                result = dict(row)
+                # result = row
         
-    elif output in ('df','list','oneJson','column'):
+        
+    elif output in ('df','list','column'):
         # df
         try:
+            res = ps_cursor.fetchall()
+            ps_cursor.close()
             if fillna:
-                df = pd.read_sql_query(s1, con=ps_connection, coerce_float=False).fillna('') 
+                df = pd.DataFrame(res).fillna('')
+                # df = pd.read_sql_query(s1, con=ps_connection, coerce_float=False).fillna('') 
             else:
-                df = pd.read_sql_query(s1, con=ps_connection, coerce_float=False)
+                df = pd.DataFrame(res)
+                # df = pd.read_sql_query(s1, con=ps_connection, coerce_float=False)
         except DatabaseError as e:
             cf.logmessage("DatabaseError!")
             cf.logmessage(e)
             raise
+
         # coerce_float : need to ensure mobiles aren't screwed
         
         # make all colunm headers lowercase
@@ -87,13 +96,15 @@ def makeQuery(s1, output='df', lowerCaseColumns=False, keepCols=False, fillna=Tr
         
         if output=='df':
             result = df
-            if (not len(df)) and (not keepCols):
-                result = []
-        elif output == 'oneJson': 
+            # if (not len(df)) and (not keepCols):
+            #     result = []
             if not len(df):
-                result = {}
-            else:
-                result = df.to_dict(orient='records')[0]
+                result = []
+        # elif output == 'oneJson': 
+        #     if not len(df):
+        #         result = {}
+        #     else:
+        #         result = df.to_dict(orient='records')[0]
 
         elif (not len(df)): 
             result = []
@@ -107,8 +118,13 @@ def makeQuery(s1, output='df', lowerCaseColumns=False, keepCols=False, fillna=Tr
     else:
         cf.logmessage('invalid output type')
     
-    threaded_postgreSQL_pool.putconn(ps_connection) # return threaded connnection back to pool
-    return result
+    try:
+        threaded_postgreSQL_pool.putconn(ps_connection) # return threaded connnection back to pool
+    except DatabaseError as e:
+            cf.logmessage("DatabaseError when returning threaded connection back to pool")
+            cf.logmessage(e)
+    finally:
+        return result
 
 
 def execSQL(s1, noprint=False):

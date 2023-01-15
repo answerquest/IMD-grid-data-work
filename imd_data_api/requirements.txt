@@ -1,0 +1,6 @@
+psycopg2-binary
+pandas
+uvicorn[standard]
+fastapi
+matplotlib
+haversine

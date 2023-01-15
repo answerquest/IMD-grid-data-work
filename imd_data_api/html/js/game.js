@@ -72,6 +72,57 @@ $(document).ready(function () {
 // ############################################
 // API CALLS
 
+function initialData(which='temp', defaultYr=null) {
+    $('#initialData_status').html(`Loading grid and years list..`);
+    
+    $.ajax({
+        url: `${APIpath}/initialData?which=${which}`,
+        type: "GET",
+        // data : JSON.stringify(payload),
+        // headers: { "x-access-token": token },
+        cache: false,
+        contentType: 'application/json',
+        success: function (returndata) {
+            let yContent = ``;
+            returndata.years.forEach( y => {
+                yContent += `<option value="${y}">${y}</option>`;
+            });
+            $('#y1').html(yContent);
+            $('#y2').html(yContent);
+
+            if(defaultYr) {
+                $('#y1').val(defaultYr);
+            }
+            // map locations
+            let gridHolder = Papa.parse(returndata['locations'], {header:true, skipEmptyLines:true}); 
+            gridHolder.data.forEach(g => {
+                let popupContent = `${g.lat}, ${g.lon} <button onclick="$('#selectedLocation').html('${g.lat},${g.lon}')">Select</button>
+                ${which=='temp'? '' : ( g.temp_sr!='NULL' ? '<br>Both rain and temperature data':'<br>only rain data' ) }`;
+                let tooltipContent = `${g.lat}, ${g.lon}`;
+                let pt = L.circleMarker([g.lat,g.lon], {
+                        renderer: myRenderer,
+                        radius: 5,
+                        fillColor: which=='temp'? "blue" : ( g.temp_sr!='NULL' ? 'orange':'blue' ),
+                        color: "grey",
+                        weight: 1,
+                        opacity: 1, 
+                        fillOpacity: 0.4
+                    })
+                    .bindPopup(popupContent)
+                    .bindTooltip(tooltipContent, {direction: 'bottom', offset: [0,10]});
+                pt.addTo(gridLayer);
+            });
+            if (!map.hasLayer(gridLayer)) map.addLayer(gridLayer);
+            $('#initialData_status').html(``);
+
+        },
+        error: function (jqXHR, exception) {
+            console.log(`Present token invalid; repeat login.`);
+            localStorage.removeItem("imdapi_token");
+            
+        },
+    });
+}
 
 
 
@@ -149,9 +200,16 @@ function gameSubmit(){
             
         },
         error: function (jqXHR, exception) {
+            if(jqXHR.status == 404) {
+                $('#gameSubmit_status').html(jqXHR.responseJSON.detail);    
+            } else {
+                $('#gameSubmit_status').html(`Error, check logs`);
+            }
             console.log("error:", jqXHR.responseText);
-            $('#gameSubmit_status').html(`Error, check logs`);
         }
     });  
 
 }
+
+
+

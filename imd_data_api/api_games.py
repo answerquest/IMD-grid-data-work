@@ -46,7 +46,9 @@ def gameStart(r: gameStart_payload, x_access_token: str = Header(...)):
         return
 
     comdf1 = fetch2yrsTempData(r.y1,r.y2,r.lat,r.lon)
-
+    if not len(comdf1):
+        raise HTTPException(status_code=404, detail="No data for one or both of the years selected")
+    
     # make viz
     filename, assignment = viz2yrsTempData(comdf1, r.y1, r.y2, r.lat, r.lon)
 
@@ -95,7 +97,7 @@ def gameSubmit(r: gameSubmit_payload, x_access_token: str = Header(...)):
     
     # check if game already finished
     if grow.get('answered', False):
-        raise HTTPException(status_code=400, detail="Game already completed")
+        raise HTTPException(status_code=404, detail="Game already completed")
         return
 
     answer = { 'y1_tmax': r.y1_tmax, 'y2_tmax': r.y2_tmax, 'y1_tmin': r.y1_tmin, 'y2_tmin': r.y2_tmin }
@@ -111,6 +113,7 @@ def gameSubmit(r: gameSubmit_payload, x_access_token: str = Header(...)):
     if answer == assignment:
         cf.logmessage(f"All correct!")
         score = 100
+        correctCount = 4
     
     else:
         # calculcate score
